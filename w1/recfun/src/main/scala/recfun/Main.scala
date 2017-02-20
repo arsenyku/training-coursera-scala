@@ -1,5 +1,7 @@
 package recfun
 
+import scala.collection.mutable.ListBuffer
+
 object Main {
   def main(args: Array[String]) {
     println("Pascal's Triangle")
@@ -15,18 +17,69 @@ object Main {
    */
     def pascal(c: Int, r: Int): Int =
     {
-      return 1
+      val row = pascalIter(List(),r+1)
+      return row(c)
     }
 
-    def pascalIter(c:Int, r:Int, previous:List[Char]): List[Char] =
+    def pascalIter(previous:List[Int], maxLength:Int): List[Int] =
     {
-      return
+      if (previous.size >= maxLength)
+      {
+        return previous
+      }
+
+      var row = ListBuffer[Int]()
+      var left:Int = 0
+      var right:Int = 0
+      for( i <- 0 to previous.size-1)
+      {
+        right = previous(i)
+
+        row += left+right
+
+        left = right
+      }
+
+      row += 1
+
+      return pascalIter(row.toList, maxLength)
+
     }
   
   /**
    * Exercise 2
    */
-    def balance(chars: List[Char]): Boolean = ???
+    def balance(chars: List[Char]): Boolean =
+    {
+
+
+
+      return balanceIter(0,chars) == 0
+    }
+
+    def balanceIter(balanceValue:Int,chars:List[Char]): Int =
+    {
+      if (chars.size < 1 || balanceValue < 0)
+      {
+        return balanceValue
+      }
+
+      val first = chars(0)
+      val rest = chars.drop(1)
+      var newBalance = balanceValue
+
+      if (first == '(')
+      {
+        newBalance = balanceValue + 1
+      }
+      else if (first == ')')
+      {
+        newBalance = balanceValue - 1
+      }
+
+      return balanceIter(newBalance, rest)
+    }
+
   
   /**
    * Exercise 3
