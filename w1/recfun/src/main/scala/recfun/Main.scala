@@ -24,7 +24,7 @@ object Main {
     if (previous.size >= maxLength) previous
     else
     {
-      val row = for (i <- 0 to previous.size - 1) yield
+      val row = for (i <- previous.indices) yield
       {
         val left = if (i == 0) 0 else previous(i-1)
         val right = previous(i)
