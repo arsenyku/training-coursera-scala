@@ -69,32 +69,29 @@ object Main {
     */
   def countChange(money: Int, coins: List[Int]): Int =
   {
-    countChangeIter(0, money, money, coins.sortWith((x, y) => x > y))
+    countChangeIter(money, money, coins.sortWith((x, y) => x > y))
   }
 
-  def countChangeIter(waysToCount: Int, remainingChange: Int, originalMoney: Int, coins: List[Int]): Int =
+  def countChangeIter(remainingChange: Int, originalMoney: Int, coins: List[Int]): Int =
   {
     if (coins.isEmpty)
     {
-      waysToCount
+      0
     }
     else
     {
-      val head = coins.head
-      val tail = coins.tail
-
-      val newRemainingChange = remainingChange - head
+      val newRemainingChange = remainingChange - coins.head
 
       if (newRemainingChange < 0)
       {
-        waysToCount + countChangeIter(waysToCount, remainingChange, originalMoney, tail)
+        countChangeIter(remainingChange, originalMoney, coins.tail)
       }
-      else //if (newRemainingChange > 0)
+      else
       {
         val foundMatch = if (newRemainingChange == 0) 1 else 0
 
-        foundMatch + countChangeIter(waysToCount, newRemainingChange, originalMoney, coins) +
-          countChangeIter(waysToCount, remainingChange, originalMoney, tail)
+        foundMatch + countChangeIter(newRemainingChange, originalMoney, coins) +
+          countChangeIter(remainingChange, originalMoney, coins.tail)
       }
     }
 
