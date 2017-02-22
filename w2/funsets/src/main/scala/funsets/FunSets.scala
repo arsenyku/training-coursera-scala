@@ -45,7 +45,6 @@ object FunSets {
    */
   def filter(s: Set, p: Int => Boolean): Set = { x => contains(s,x) && p(x) }
   
-
   /**
    * The bounds for `forall` and `exists` are +/- 1000.
    */
@@ -68,20 +67,18 @@ object FunSets {
    * that satisfies `p`.
    */
   def exists(s: Set, p: Int => Boolean): Boolean = {
-    def iter(a: Int): Boolean = {
-      if (a < -bound) false
-      else if (contains(s,a)) p(a) || iter(a-1)
-      else iter(a-1)
-    }
-    iter(bound)
+    val reverseFiltered = filter(s, x => !p(x))
+    !forall(s, x => contains(reverseFiltered, x) )
   }
-  
+
+  val emptySet:Set = { x => false }
+
   /**
    * Returns a set transformed by applying `f` to each element of `s`.
    */
   def map(s: Set, f: Int => Int): Set = {
     def iter(a:Int):Set = {
-      if (a < -bound) { x => false }
+      if (a < -bound) emptySet
       else if (contains(s,a)) union(singletonSet(f(a)), iter(a-1))
       else iter(a-1)
     }

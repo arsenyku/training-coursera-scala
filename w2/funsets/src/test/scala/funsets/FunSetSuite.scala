@@ -148,7 +148,7 @@ class FunSetSuite extends FunSuite {
 
       val result = map(t, x => x + 1)
       val allOver1 = forall(result, x => x > 1)
-      val allUnder6 = forall(result, x => x <6)
+      val allUnder6 = forall(result, x => x < 6)
       assert (allOver1 && allUnder6, "Elements in resulting set should be 2 to 5")
       assert (forall(result, x => contains(expected,x)), "Elements in resulting set should be in expected set")
       assert (forall(expected, x => contains(result,x)), "Elements in expected set should be in result set")
@@ -169,14 +169,43 @@ class FunSetSuite extends FunSuite {
     }
   }
 
-  test("exists returns correct result") {
+  test("exists returns true when an element matches the condition") {
     new TestSets {
       val t = union(s1,union(s2,union(s3,s4)))
       val evens = map(t, x => x * 2)
 
       val fourIsEven = exists(evens, x => x == 4)
-      val threeIsEven = exists(evens, x => x == 3)
       assert (fourIsEven, "Set of evens should contain 4")
+    }
+  }
+
+  test("exists returns true when some elements match the condition") {
+    new TestSets {
+      val t = union(s1,union(s2,union(s3,s4)))
+      val evens = map(t, x => x * 2)
+
+      val allOver0 = exists(evens, x => x > 3)
+      assert (allOver0, "Some evens are over 3")
+    }
+  }
+
+
+  test("exists returns true when all elements match the condition") {
+    new TestSets {
+      val t = union(s1,union(s2,union(s3,s4)))
+      val evens = map(t, x => x * 2)
+
+      val allOver0 = exists(evens, x => x > 0)
+      assert (allOver0, "Set of evens are all over 0")
+    }
+  }
+
+  test("exists returns false when no element matches the condition") {
+    new TestSets {
+      val t = union(s1,union(s2,union(s3,s4)))
+      val evens = map(t, x => x * 2)
+
+      val threeIsEven = exists(evens, x => x == 3)
       assert (!threeIsEven, "Set of evens should not contain 3")
     }
   }
