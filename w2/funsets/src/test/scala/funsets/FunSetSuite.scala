@@ -168,4 +168,17 @@ class FunSetSuite extends FunSuite {
       assert (forall(expected, x => contains(result,x)), "Elements in expected set should be in result set")
     }
   }
+
+  test("exists returns correct result") {
+    new TestSets {
+      val t = union(s1,union(s2,union(s3,s4)))
+      val evens = map(t, x => x * 2)
+
+      val fourIsEven = exists(evens, x => x == 4)
+      val threeIsEven = exists(evens, x => x == 3)
+      assert (fourIsEven, "Set of evens should contain 4")
+      assert (!threeIsEven, "Set of evens should not contain 3")
+    }
+  }
+
 }
