@@ -81,6 +81,11 @@ class FunSetSuite extends FunSuite {
     val s5 = singletonSet(5)
     val s6 = singletonSet(6)
     val s8 = singletonSet(8)
+
+    val allBounded:Set = { x => -bound <= x && x <= bound }
+
+    // Same set declared using fold+union
+    // val allBounded = (-bound to bound).foldRight(emptySet)({ (i,u) => union(u, singletonSet(i)) })
   }
 
   /**
@@ -202,11 +207,12 @@ class FunSetSuite extends FunSuite {
 
   test("exists returns false when no element matches the condition") {
     new TestSets {
-      val t = union(s1,union(s2,union(s3,s4)))
-      val evens = map(t, x => x * 2)
+      val evens = map(allBounded, x => x * 2)
 
       val threeIsEven = exists(evens, x => x == 3)
       assert (!threeIsEven, "Set of evens should not contain 3")
+      assert (!exists(evens, x => x == 125), "Set of evens should not contain 125")
+
     }
   }
 
