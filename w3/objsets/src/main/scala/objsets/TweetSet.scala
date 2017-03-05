@@ -6,9 +6,10 @@ import TweetReader._
  * A class to represent tweets.
  */
 class Tweet(val user: String, val text: String, val retweets: Int) {
-  override def toString: String =
-    "User: " + user + "\n" +
-    "Text: " + text + " [" + retweets + "]"
+  //  override def toString: String =
+  //    "User: " + user + "\n" +
+  //    "Text: " + text + " [" + retweets + "]"
+  override def toString: String = user
 }
 
 /**
@@ -142,6 +143,8 @@ class Empty extends TweetSet {
   def remove(tweet: Tweet): TweetSet = this
 
   def foreach(f: Tweet => Unit): Unit = ()
+
+  override def toString = "."
 }
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
@@ -153,7 +156,55 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     else filteredSet
   }
 
-  def union(that:TweetSet):TweetSet = (left union (right union that)) incl elem
+  def union(that:TweetSet):TweetSet =
+  {
+    unionBest(that)
+//    unionGood(that)
+//    unionBad(that)
+  }
+
+  // GOOD: (left union (right union that)) incl elem
+  // HORRIBLE: (that union left union right) incl elem
+  // FROM FORUM: left union right union that incl elem
+
+  def unionGood(that:TweetSet):TweetSet = {
+    println("elem: " + elem + " this: " + this + " that:" + that)
+
+    // left union right union that incl elem
+    val inner = left union right
+    val outer = inner union that
+    val result = outer incl elem
+
+    println("incl " + elem + " into " + outer)
+
+    result
+  }
+
+  def unionBest(that:TweetSet):TweetSet ={
+    println("elem: " + elem + " this: " + this + " that:" + that)
+
+    // (left union (right union that)) incl elem
+    val inner = right union that
+    val outer = left union inner
+    val result = outer incl elem
+
+    println("incl " + elem + " into " + outer)
+
+    result
+  }
+
+  def unionBad(that:TweetSet):TweetSet ={
+    println("elem: " + elem + " this: " + this + " that:" + that)
+
+    // (that union left union right) incl elem
+    val inner = that union left
+    val outer = inner union right
+    val result = outer incl elem
+
+    println("incl " + elem + " into " + outer)
+
+    result
+  }
 
 
   def isEmpty = false
@@ -195,6 +246,8 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     left.foreach(f)
     right.foreach(f)
   }
+
+  override def toString = "{" + left + "-" + elem + "-" + right + "}"
 }
 
 trait TweetList {
