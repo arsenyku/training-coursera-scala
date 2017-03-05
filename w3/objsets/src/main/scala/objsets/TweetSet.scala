@@ -41,12 +41,12 @@ abstract class TweetSet {
    * Question: Can we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, new Empty)
+  def filter(p: Tweet => Boolean): TweetSet = filterIter(p, new Empty)
 
   /**
    * This is a helper method for `filter` that propagates the accumulated tweets.
    */
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet
+  def filterIter(p: Tweet => Boolean, acc: TweetSet): TweetSet
 
   /**
    * Returns a new `TweetSet` that is the union of `TweetSet`s `this` and `that`.
@@ -54,7 +54,9 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def union(that: TweetSet): TweetSet
+  def union(that: TweetSet): TweetSet = unionIter(that, that)
+
+  def unionIter(that:TweetSet, acc:TweetSet):TweetSet
   
   /**
    * Returns the tweet from this set which has the greatest retweet count.
@@ -121,9 +123,9 @@ abstract class TweetSet {
 
 class Empty extends TweetSet {
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
+  def filterIter(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
 
-  def union(that: TweetSet): TweetSet = that
+  def unionIter(that:TweetSet, acc:TweetSet):TweetSet = acc
 
   def mostRetweeted:Tweet = throw new java.util.NoSuchElementException("mostRetweeted of empty tweet set")
 
@@ -146,14 +148,18 @@ class Empty extends TweetSet {
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet =
+  def filterIter(p: Tweet => Boolean, acc: TweetSet): TweetSet =
   {
-    val filteredSet = left.filterAcc(p, acc) union right.filterAcc(p, acc)
+    val filteredSet = right.filterIter(p, left.filterIter(p, acc))
     if (p(elem)) filteredSet incl elem
     else filteredSet
   }
 
-  def union(that: TweetSet): TweetSet = (that union left union right) incl elem
+  def unionIter(that:TweetSet, acc:TweetSet):TweetSet =
+  {
+    if (that contains elem) right.unionIter(that, left.unionIter(that, acc))
+    else right.unionIter(that, left.unionIter(that, acc incl elem))
+  }
 
   def isEmpty = false
 
@@ -222,14 +228,25 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-    lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  val allTweets = TweetReader.allTweets
+
+  // all tweets that mention (in their “text”) one of the keywords in the google list
+  lazy val googleTweets: TweetSet =
+  {
+    allTweets.filter(tw => google.exists( s => tw.text.contains(s) ))
+  }
+
+  // all tweets that mention (in their “text”) one of the keywords in the apple list
+  lazy val appleTweets: TweetSet =
+  {
+    allTweets.filter(tw => google.exists( s => tw.text.contains(s) ))
+  }
   
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-     lazy val trending: TweetList = ???
+     lazy val trending: TweetList = (googleTweets union appleTweets).descendingByRetweet
   }
 
 object Main extends App {

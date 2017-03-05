@@ -85,6 +85,27 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
+  test("more than 50 retweets") {
+    new TestSets {
+      val t1 = new Tweet("t", "body1", 10)
+      val t2 = new Tweet("t", "body2", 20)
+      val t3 = new Tweet("t", "body3", 30)
+      val t4 = new Tweet("t", "body4", 40)
+      val t5 = new Tweet("t", "body5", 50)
+      val t6 = new Tweet("t", "body6", 60)
+      val t7 = new Tweet("t", "body7", 70)
+      val t8 = new Tweet("t", "body8", 80)
+      val t9 = new Tweet("t", "body9", 90)
+      val low = (new Empty) incl t1 incl t2 incl t3
+      val mid = (new Empty) incl t4 incl t5 incl t6
+      val high = (new Empty) incl t7 incl t8 incl t9
+      val all = low union mid union high
+
+      assert(size(all.filter(t => t.retweets > 50)) == 4)
+
+    }
+  }
+
   test("descending: set5") {
     new TestSets {
       val trends = set5.descendingByRetweet
