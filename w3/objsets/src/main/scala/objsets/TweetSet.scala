@@ -66,7 +66,9 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def mostRetweeted: Tweet
-  
+
+  def isEmpty:Boolean
+
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
    * in descending order. In other words, the head of the resulting list should
@@ -76,8 +78,19 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-    def descendingByRetweet: TweetList = ???
-  
+
+  def descendingByRetweet: TweetList
+
+  def descendingByRetweetIter(acc:TweetList): TweetList =
+  {
+    if (isEmpty) acc
+    else
+    {
+      val head = mostRetweeted
+      new Cons (head, remove(head).descendingByRetweetIter(acc))
+    }
+  }
+
   /**
    * The following methods are already implemented
    */
@@ -114,6 +127,10 @@ class Empty extends TweetSet {
 
   def mostRetweeted:Tweet = throw new java.util.NoSuchElementException("mostRetweeted of empty tweet set")
 
+  def isEmpty = true
+
+  def descendingByRetweet: TweetList = Nil
+
   /**
    * The following methods are already implemented
    */
@@ -138,7 +155,19 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def union(that: TweetSet): TweetSet = (that union left union right) incl elem
 
-  def mostRetweeted:Tweet = ???
+  def isEmpty = false
+
+  def mostRetweeted:Tweet =
+  {
+    val leftMost = if (left.isEmpty) elem else left.mostRetweeted
+    val rightMost = if (right.isEmpty) elem else right.mostRetweeted
+    List(elem, leftMost, rightMost).maxBy(x => x.retweets)
+  }
+
+  def descendingByRetweet: TweetList =
+  {
+    descendingByRetweetIter(Nil)
+  }
 
   /**
    * The following methods are already implemented
