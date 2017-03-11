@@ -77,7 +77,28 @@ object Huffman {
    *       println("integer is  : "+ theInt)
    *   }
    */
-    def times(chars: List[Char]): List[(Char, Int)] = ???
+  def times(chars: List[Char]): List[(Char, Int)] =
+  {
+    timesIter(chars, List[(Char, Int)]())
+  }
+
+  def timesIter(chars:List[Char], acc:List[(Char, Int)]): List[(Char, Int)] =
+  {
+    if (chars.length == 0) acc
+    else
+    {
+      val (count, list) = extract(chars.head, List(), acc)
+      val newAcc = (chars.head, count+1) :: list
+      timesIter(chars.tail, newAcc)
+    }
+  }
+
+  def extract(char:Char, checked:List[(Char, Int)], unchecked:List[(Char, Int)]):(Int, List[(Char, Int)]) =
+  {
+    if (unchecked.length == 0) (0, checked)
+    else if (unchecked.head._1 == char) (unchecked.head._2, checked ::: unchecked.tail)
+    else extract(char, unchecked.head :: checked, unchecked.tail)
+  }
   
   /**
    * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
