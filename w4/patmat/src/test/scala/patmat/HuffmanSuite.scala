@@ -76,7 +76,7 @@ class HuffmanSuite extends FunSuite {
   test("build code table") {
     val tree = createCodeTree(List('A','B','B','C','C','C','C'))
     val codeTable = convert(tree)
-    println(codeTable)
+    assert(codeTable === List(('A',List(0, 0)), ('B',List(0, 1)), ('C',List(1))))
   }
 
   test("encode") {
