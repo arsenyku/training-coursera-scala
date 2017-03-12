@@ -73,6 +73,12 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
+  test("build code table") {
+    val tree = createCodeTree(List('A','B','B','C','C','C','C'))
+    val codeTable = convert(tree)
+    println(codeTable)
+  }
+
   test("encode") {
     new TestTrees {
       assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)

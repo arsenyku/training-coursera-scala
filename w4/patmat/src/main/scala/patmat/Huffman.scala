@@ -238,7 +238,10 @@ object Huffman
    * This function encodes `text` using the code tree `tree`
    * into a sequence of bits.
    */
-  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] =
+  {
+    quickEncode(tree)(text)
+  }
 
   // Part 4b: Encoding using code table
 
@@ -248,7 +251,17 @@ object Huffman
    * This function returns the bit sequence that represents the character `char` in
    * the code table `table`.
    */
-    def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+  def codeBits(table: CodeTable)(char: Char): List[Bit] =
+  {
+    codeBitsIter(table)(char, List(), table)
+  }
+
+  def codeBitsIter(table:CodeTable)(char:Char, checked:CodeTable, unchecked:CodeTable):List[Bit] =
+  {
+    if (unchecked.length == 0) List()
+    else if (unchecked.head._1 == char) unchecked.head._2
+    else codeBitsIter(table)(char, unchecked.head :: checked, unchecked.tail)
+  }
   
   /**
    * Given a code tree, create a code table which contains, for every character in the
@@ -258,7 +271,22 @@ object Huffman
    * a valid code tree that can be represented as a code table. Using the code tables of the
    * sub-trees, think of how to build the code table for the entire tree.
    */
-    def convert(tree: CodeTree): CodeTable = ???
+  def convert(tree: CodeTree): CodeTable =
+  {
+    convertIter(tree, List(), List())
+  }
+
+  def convertIter(tree:CodeTree, acc:CodeTable, code:List[Bit]):CodeTable =
+  {
+    tree match
+    {
+      case Leaf(char, weight) => (char, code) :: acc
+      case Fork(left, right, chars, weight ) =>
+      {
+        convertIter(left, convertIter(right, acc, code :+ 1), code :+ 0)
+      }
+    }
+  }
   
   /**
    * This function takes two code tables and merges them into one. Depending on how you
@@ -273,5 +301,19 @@ object Huffman
    * To speed up the encoding process, it first converts the code tree to a code table
    * and then uses it to perform the actual encoding.
    */
-    def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] =
+  {
+    val codeTable = convert(tree)
+    quickEncodeIter(codeTable, text, List())
   }
+
+  def quickEncodeIter(table:CodeTable, text:List[Char], acc:List[Bit]):List[Bit] =
+  {
+    if (text.length == 0) acc
+    else
+    {
+      val code = codeBits(table)(text.head)
+      quickEncodeIter(table, text.tail, acc ::: code)
+    }
+  }
+}
