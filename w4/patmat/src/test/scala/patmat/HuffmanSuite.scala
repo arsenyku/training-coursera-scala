@@ -67,6 +67,12 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
+  test("decoded french secret") {
+    new TestTrees {
+      assert(decodedSecret.mkString === "huffmanestcool")
+    }
+  }
+
   test("encode") {
     new TestTrees {
       assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
