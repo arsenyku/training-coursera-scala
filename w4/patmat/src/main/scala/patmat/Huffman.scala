@@ -140,21 +140,10 @@ object Huffman
       val first = trees.head
       val second = trees.tail.head
       val newFork = Fork(first, second, chars(first):::chars(second), weight(first)+weight(second))
+//      val newFork = Fork(second, first, chars(second):::chars(first), weight(second)+weight(first))
       (newFork :: trees.drop(2)).sortWith( (tree1, tree2) => weight(tree1) < weight(tree2) )
     }
   }
-
-//  def combine(first:CodeTree, second:CodeTree):CodeTree =
-//  {
-//    val newTree = (first, second) match
-//    {
-//      case (Leaf(c1, w1), Leaf(c2, w2)) => Fork(second, first, List(c2,c1), w2+w1 )
-//      case (Leaf(c1, w1), Fork(left, right, chars, w2)) => ???
-//      case (Fork(left, right, chars, w1), Leaf(c1, w2)) => ???
-//      case (Fork(left1, right1, chars1, w1), Fork(left2, right2, chars2, w2)) => ???
-//    }
-//  }
-
 
   /**
    * This function will be called in the following way:
@@ -173,7 +162,15 @@ object Huffman
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
-    def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  def until(done: List[CodeTree] => Boolean, doAction: List[CodeTree] => List[CodeTree])(list: List[CodeTree]): CodeTree =
+  {
+    if (done(list)) list.head
+    else
+    {
+      val newList = doAction(list)
+      until(done, doAction)(newList)
+    }
+  }
   
   /**
    * This function creates a code tree which is optimal to encode the text `chars`.
@@ -181,7 +178,7 @@ object Huffman
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-    def createCodeTree(chars: List[Char]): CodeTree = ???
+    def createCodeTree(chars: List[Char]): CodeTree = until(singleton, combine)(makeOrderedLeafList(times(chars)))
   
 
   // Part 3: Decoding
@@ -192,8 +189,30 @@ object Huffman
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
    */
-    def decode(tree: CodeTree, bits: List[Bit]): List[Char] = ???
-  
+
+  def decode(tree: CodeTree, bits: List[Bit]): List[Char] =
+  {
+    decodeIter(tree, tree, bits, List())
+  }
+
+  def decodeIter(fullTree:CodeTree, subTree:CodeTree, bits: List[Bit], acc:List[Char]) : List[Char] =
+  {
+    subTree match
+    {
+      case Leaf(char, weight) =>
+      {
+        if (bits.length == 0) acc :+ char
+        else decodeIter(fullTree, fullTree, bits, acc :+ char)
+      }
+      case Fork(left, right, chars, weight ) =>
+      {
+        if (bits.length == 0) acc
+        else if (bits.head == 0) decodeIter(fullTree, left, bits.tail, acc)
+        else decodeIter(fullTree, right, bits.tail, acc)
+      }
+    }
+  }
+
   /**
    * A Huffman coding tree for the French language.
    * Generated from the data given at
@@ -219,8 +238,8 @@ object Huffman
    * This function encodes `text` using the code tree `tree`
    * into a sequence of bits.
    */
-    def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
-  
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+
   // Part 4b: Encoding using code table
 
   type CodeTable = List[(Char, List[Bit])]

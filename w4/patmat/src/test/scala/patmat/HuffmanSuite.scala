@@ -46,10 +46,31 @@ class HuffmanSuite extends FunSuite {
     assert(makeOrderedLeafList(List(('t', 2), ('e', 1), ('x', 3))) === List(Leaf('e',1), Leaf('t',2), Leaf('x',3)))
   }
 
-
   test("combine of some leaf list") {
     val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
     assert(combine(leaflist) === List(Fork(Leaf('e',1),Leaf('t',2),List('e', 't'),3), Leaf('x',4)))
+  }
+
+  test("tree from char list") {
+    new TestTrees {
+      val tree = createCodeTree(List('a','b','b','c','c','c','c'))
+      assert(tree === Fork(Fork(Leaf('a',1),Leaf('b',2),List('a', 'b'),3),Leaf('c',4),List('a', 'b', 'c'),7))
+    }
+  }
+
+  test("decode") {
+    new TestTrees {
+      val tree = createCodeTree(List('A','B','B','C','C','C','C'))
+      val decoded = decode(tree, List(1,0,0,0,1))
+      println(decoded)
+      assert(decoded === "CAB".toList)
+    }
+  }
+
+  test("encode") {
+    new TestTrees {
+      assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
+    }
   }
 
 
