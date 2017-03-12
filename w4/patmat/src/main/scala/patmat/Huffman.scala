@@ -6,30 +6,33 @@ import common._
  * Assignment 4: Huffman coding
  *
  */
-object Huffman {
+object Huffman
+{
 
   /**
-   * A huffman code is represented by a binary tree.
-   *
-   * Every `Leaf` node of the tree represents one character of the alphabet that the tree can encode.
-   * The weight of a `Leaf` is the frequency of appearance of the character.
-   *
-   * The branches of the huffman tree, the `Fork` nodes, represent a set containing all the characters
-   * present in the leaves below it. The weight of a `Fork` node is the sum of the weights of these
-   * leaves.
-   */
-    abstract class CodeTree
+    * A huffman code is represented by a binary tree.
+    *
+    * Every `Leaf` node of the tree represents one character of the alphabet that the tree can encode.
+    * The weight of a `Leaf` is the frequency of appearance of the character.
+    *
+    * The branches of the huffman tree, the `Fork` nodes, represent a set containing all the characters
+    * present in the leaves below it. The weight of a `Fork` node is the sum of the weights of these
+    * leaves.
+    */
+  abstract class CodeTree
+
   case class Fork(left: CodeTree, right: CodeTree, chars: List[Char], weight: Int) extends CodeTree
+
   case class Leaf(char: Char, weight: Int) extends CodeTree
-  
+
 
   // Part 1: Basics
-    def weight(tree: CodeTree): Int = tree match
-    {
-      case Leaf(char, weight) => weight
-      case Fork(left, right, chars, _) => weight(left) + weight(right)
-    }
-  
+  def weight(tree: CodeTree): Int = tree match
+  {
+    case Leaf(char, weight) => weight
+    case Fork(left, right, chars, _) => weight(left) + weight(right)
+  }
+
   def chars(tree: CodeTree): List[Char] = tree match
   {
     case Leaf(char, weight) => List(char)
@@ -40,94 +43,119 @@ object Huffman {
     Fork(left, right, chars(left) ::: chars(right), weight(left) + weight(right))
 
 
-
   // Part 2: Generating Huffman trees
 
   /**
-   * In this assignment, we are working with lists of characters. This function allows
-   * you to easily create a character list from a given string.
-   */
+    * In this assignment, we are working with lists of characters. This function allows
+    * you to easily create a character list from a given string.
+    */
   def string2Chars(str: String): List[Char] = str.toList
 
   /**
-   * This function computes for each unique character in the list `chars` the number of
-   * times it occurs. For example, the invocation
-   *
-   *   times(List('a', 'b', 'a'))
-   *
-   * should return the following (the order of the resulting list is not important):
-   *
-   *   List(('a', 2), ('b', 1))
-   *
-   * The type `List[(Char, Int)]` denotes a list of pairs, where each pair consists of a
-   * character and an integer. Pairs can be constructed easily using parentheses:
-   *
-   *   val pair: (Char, Int) = ('c', 1)
-   *
-   * In order to access the two elements of a pair, you can use the accessors `_1` and `_2`:
-   *
-   *   val theChar = pair._1
-   *   val theInt  = pair._2
-   *
-   * Another way to deconstruct a pair is using pattern matching:
-   *
-   *   pair match {
-   *     case (theChar, theInt) =>
-   *       println("character is: "+ theChar)
-   *       println("integer is  : "+ theInt)
-   *   }
-   */
+    * This function computes for each unique character in the list `chars` the number of
+    * times it occurs. For example, the invocation
+    *
+    * times(List('a', 'b', 'a'))
+    *
+    * should return the following (the order of the resulting list is not important):
+    *
+    * List(('a', 2), ('b', 1))
+    *
+    * The type `List[(Char, Int)]` denotes a list of pairs, where each pair consists of a
+    * character and an integer. Pairs can be constructed easily using parentheses:
+    *
+    * val pair: (Char, Int) = ('c', 1)
+    *
+    * In order to access the two elements of a pair, you can use the accessors `_1` and `_2`:
+    *
+    * val theChar = pair._1
+    * val theInt  = pair._2
+    *
+    * Another way to deconstruct a pair is using pattern matching:
+    *
+    * pair match {
+    * case (theChar, theInt) =>
+    * println("character is: "+ theChar)
+    * println("integer is  : "+ theInt)
+    * }
+    */
   def times(chars: List[Char]): List[(Char, Int)] =
   {
     timesIter(chars, List[(Char, Int)]())
   }
 
-  def timesIter(chars:List[Char], acc:List[(Char, Int)]): List[(Char, Int)] =
+  def timesIter(chars: List[Char], acc: List[(Char, Int)]): List[(Char, Int)] =
   {
     if (chars.length == 0) acc
     else
     {
       val (count, list) = extract(chars.head, List(), acc)
-      val newAcc = (chars.head, count+1) :: list
+      val newAcc = (chars.head, count + 1) :: list
       timesIter(chars.tail, newAcc)
     }
   }
 
-  def extract(char:Char, checked:List[(Char, Int)], unchecked:List[(Char, Int)]):(Int, List[(Char, Int)]) =
+  def extract(char: Char, checked: List[(Char, Int)], unchecked: List[(Char, Int)]): (Int, List[(Char, Int)]) =
   {
     if (unchecked.length == 0) (0, checked)
     else if (unchecked.head._1 == char) (unchecked.head._2, checked ::: unchecked.tail)
     else extract(char, unchecked.head :: checked, unchecked.tail)
   }
-  
+
   /**
-   * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
-   *
-   * The returned list should be ordered by ascending weights (i.e. the
-   * head of the list should have the smallest weight), where the weight
-   * of a leaf is the frequency of the character.
-   */
-    def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = ???
-  
+    * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
+    *
+    * The returned list should be ordered by ascending weights (i.e. the
+    * head of the list should have the smallest weight), where the weight
+    * of a leaf is the frequency of the character.
+    */
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] =
+  {
+    val sortedFreqs = freqs.sortWith((t1, t2) => t1._2 < t2._2)
+    sortedFreqs.map(t => Leaf(t._1, t._2))
+  }
+
   /**
-   * Checks whether the list `trees` contains only one single code tree.
-   */
-    def singleton(trees: List[CodeTree]): Boolean = ???
-  
+    * Checks whether the list `trees` contains only one single code tree.
+    */
+  def singleton(trees: List[CodeTree]): Boolean = (trees.length == 1)
+
   /**
-   * The parameter `trees` of this function is a list of code trees ordered
-   * by ascending weights.
-   *
-   * This function takes the first two elements of the list `trees` and combines
-   * them into a single `Fork` node. This node is then added back into the
-   * remaining elements of `trees` at a position such that the ordering by weights
-   * is preserved.
-   *
-   * If `trees` is a list of less than two elements, that list should be returned
-   * unchanged.
-   */
-    def combine(trees: List[CodeTree]): List[CodeTree] = ???
-  
+    * The parameter `trees` of this function is a list of code trees ordered
+    * by ascending weights.
+    *
+    * This function takes the first two elements of the list `trees` and combines
+    * them into a single `Fork` node. This node is then added back into the
+    * remaining elements of `trees` at a position such that the ordering by weights
+    * is preserved.
+    *
+    * If `trees` is a list of less than two elements, that list should be returned
+    * unchanged.
+    */
+  def combine(trees: List[CodeTree]): List[CodeTree] =
+  {
+    if (trees.length < 2) trees
+    else
+    {
+      val first = trees.head
+      val second = trees.tail.head
+      val newFork = Fork(first, second, chars(first):::chars(second), weight(first)+weight(second))
+      (newFork :: trees.drop(2)).sortWith( (tree1, tree2) => weight(tree1) < weight(tree2) )
+    }
+  }
+
+//  def combine(first:CodeTree, second:CodeTree):CodeTree =
+//  {
+//    val newTree = (first, second) match
+//    {
+//      case (Leaf(c1, w1), Leaf(c2, w2)) => Fork(second, first, List(c2,c1), w2+w1 )
+//      case (Leaf(c1, w1), Fork(left, right, chars, w2)) => ???
+//      case (Fork(left, right, chars, w1), Leaf(c1, w2)) => ???
+//      case (Fork(left1, right1, chars1, w1), Fork(left2, right2, chars2, w2)) => ???
+//    }
+//  }
+
+
   /**
    * This function will be called in the following way:
    *
