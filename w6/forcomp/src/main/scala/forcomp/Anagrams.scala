@@ -90,7 +90,30 @@ object Anagrams {
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  def combinations(occurrences: Occurrences): List[Occurrences] =
+  {
+    if (occurrences.length == 0) List(List())
+    else
+    {
+      val (headChar, n) = occurrences.head
+      val headList:List[Occurrences] = (for (i <- 1 to n) yield List((headChar, i))).toList
+      val tailList = combinations(occurrences.tail)
+
+//      println ("H " + headList)
+//      println ("T " + tailList)
+
+      val m = tailList.length
+      val prependedList:List[Occurrences] = (for
+      {
+        i <- 1 to n
+        j <- 0 until m
+      }  yield (headChar, i) +: tailList(j)).toList
+
+//      println ("P " + prependedList)
+
+      headList ::: prependedList ::: tailList
+    }
+  }
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
    *
