@@ -44,6 +44,21 @@ class AnagramsSuite extends FunSuite  {
     assert(subtract(lard, r) === lad)
   }
 
+  test("subtract: larrd - r") {
+    val larrd = List(('a', 1), ('d', 1), ('l', 1), ('r', 2))
+    val r = List(('r', 1))
+    val lard = List(('a', 1), ('d', 1), ('l', 1), ('r', 1))
+    assert(subtract(larrd, r) === lard)
+  }
+
+  test("subtract: bananagram - bann") {
+    val bananagram = List(('a', 4), ('b', 1), ('g', 1), ('m', 1), ('n', 2), ('r', 1))
+    val bann = List(('a', 1), ('b', 1), ('n', 2))
+    val aagram = List(('a', 3), ('g', 1), ('m', 1), ('r', 1))
+    assert(subtract(bananagram, bann) === aagram)
+  }
+
+
   test("combinations: []") {
     assert(combinations(Nil) === List(Nil))
   }
@@ -75,10 +90,16 @@ class AnagramsSuite extends FunSuite  {
     assert(combinations(abba).toSet === abbacomb.toSet)
   }
 
-
   test("sentence anagrams: []") {
     val sentence = List()
     assert(sentenceAnagrams(sentence) === List(Nil))
+  }
+
+  test("sentence anagrams: eat") {
+    val sentence = List("eat")
+    val result = sentenceAnagrams(sentence).toSet
+    val expected = List(List("eat"), List("ate"), List("tea")).toSet
+    assert(result === expected)
   }
 
   test("sentence anagrams: Linux rulez") {
