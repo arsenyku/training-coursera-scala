@@ -194,8 +194,6 @@ object Anagrams {
   {
     val (chars,_) = o.unzip
 
-//    println(prefix + " --- " + o)
-
     if (chars.length == 0) acc
     else
     {
@@ -241,64 +239,7 @@ object Anagrams {
 
   def prependWordsToSentences(words:List[Word], sentences:List[Sentence]): List[Sentence] =
   {
-    val prepended:List[Sentence] = words.map( w => sentences.map( s => w +: s) ).flatten
-    prepended
+    words.flatMap( w => sentences.map( s => w +: s) )
   }
-
-//  def trace(x: String):Int =
-//  {
-//    println(x) // or your favourite logging framework :)
-//    0
-//  }
-
-  //  {
-//    println(start, o)
-//    if (o.length == 0) List()
-//    else
-//    {
-//      val (chars, _) = o.unzip
-//
-//      val anagrams = (for (char <- chars) yield
-//      {
-//        val charOccurrence = List((char, 1))
-//        val charWordAnagrams = dictionaryByOccurrences.getOrElse(charOccurrence, List())
-//        val l1:List[Sentence] = if (charWordAnagrams.length > 0)
-//        {
-//          sentenceAnagramsIter(char.toString, subtract(o, charOccurrence)).map(m => char.toString +: m)
-//        }
-//        else
-//        {
-//          List()
-//        }
-//
-//        val testWord = start+char
-//        val testOccurrences = wordOccurrences(testWord)
-//        val testAnagrams = dictionaryByOccurrences.getOrElse(testOccurrences, List())
-//        val l2 = if (testAnagrams.length > 0)
-//        {
-//          sentenceAnagramsIter(testWord, subtract(o,testOccurrences)).map(m => testWord +: m)
-//        }
-//        else
-//        {
-//          List()
-//        }
-//
-//        l1 ::: l2
-//      }).reduceLeft(_ ::: _)
-//
-//      println("A: " + anagrams)
-//      anagrams
-//
-//      // l =
-//      // for each char in o
-//      //    l1 = if char is a word       -> prepend char to results from recursion with subtract(o, char)
-//      //    l2 = recursion with subtract(o, start+char)
-//      //    l1 ::: l2
-//
-//      // l
-//    }
-//  }
-
-  val EmptySentence = List()
 
 }
