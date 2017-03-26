@@ -171,5 +171,54 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] =
+  {
+    sentenceAnagramsIter("", sentenceOccurrences(sentence), List())
+  }
+
+  def sentenceAnagramsIter(prefix:Word, o: Occurrences, acc:List[Sentence]):List[Sentence] =
+  {
+    val (chars,_) = o.unzip
+
+    if (chars.length == 0) acc
+    else
+    {
+      val sentences = for
+      {
+        char <- chars
+        newPrefix = prefix + char
+        anagramsOfNewPrefix = dictionaryByOccurrences.getOrElse(wordOccurrences(newPrefix), List())
+        occWithoutChar = subtract(o, List((char, 1)))
+
+        // Recursion 1
+        l1 =
+          if (anagramsOfNewPrefix.length > 0)
+          {
+            val sentencesFromRest = sentenceAnagramsIter("", occWithoutChar, List())
+
+            if (sentencesFromRest.length == 0) List()
+            else
+            {
+              prependWordsToSentences(anagramsOfNewPrefix, sentencesFromRest)
+            }
+          }
+          else
+          {
+            List()
+          }
+
+        // Recursion 2
+        l2 = acc ::: sentenceAnagramsIter(newPrefix, occWithoutChar, l1)
+
+      } yield l2
+
+      sentences.reduceLeft(_ ::: _)
+    }
+  }
+
+  def prependWordsToSentences(words:List[Word], sentences:List[Sentence]): List[Sentence] =
+  {
+    val prepended:List[Sentence] = words.map( w => sentences.map( s => w +: s) ).flatten
+    prepended
+  }
 }
